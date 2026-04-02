@@ -1,20 +1,34 @@
-name: rpi-server
-
-# https://frasermclean.com/posts/secure-your-entire-home-network-with-adguard-home
 services:
-  adguardhome:
-    image: adguard/adguardhome
+  server:
+    image: ghcr.io/johncmanuel/pneuma/server:latest
+    container_name: pneuma-server
+    restart: unless-stopped
     ports:
-      - 53:53/tcp # plain dns over tcp
-      - 53:53/udp # plain dns over udp
-      - 80:80/tcp # http web interface
-      - 3000:3000/tcp # initial setup web interface
+      - "8989:8989"
     volumes:
-      - ./adguardhome-conf:/opt/adguardhome/conf # app configuration
-      - ./adguardhome-work:/opt/adguardhome/work # app working directory
+      # Persistent application data (database, cached artwork, uploads, etc.)
+      - pneuma_data:/data
+
+      # Mount your music directory (read-only recommended)
+      # Replace `./music` with the actual path to your local music directory
+      - ./music:/music:ro
+
+    environment:
+      # Core configuration
+      - PNEUMA_SERVER_HOST=0.0.0.0
+      - PNEUMA_DATA_DIR=/data
+
+      # Point the music scanner to the mounted volume
+      - PNEUMA_LIBRARY_WATCH_FOLDERS=/music
+
+      # Security (this'll be auto generated if not provided and placed in the config file)
+      # - PNEUMA_AUTH_SECRET_KEY=change-this-to-a-secure-random-string
+
+      # Rate limiting (defaults to true)
+      # - PNEUMA_RATE_LIMITING_ENABLED=true
+
+      # Increase upload limit if needed (500 MB is default)
+      # - PNEUMA_UPLOAD_MAX_SIZE_MB=500
 
 volumes:
-  config:
-    driver: local
-  work:
-    driver: local
+  pneuma_data:
