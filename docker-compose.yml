@@ -52,3 +52,12 @@ volumes:
   pneuma_data:
   caddy_data:
   caddy_config:
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      # tailscale's manual transmission unit (MTU) is 1280 bytes, so
+      # set docker's MTU to be the same
+      # https://tailscale.com/docs/reference/troubleshooting/network-configuration/tcp-connection-two-devices
+      com.docker.network.driver.mtu: 1280
