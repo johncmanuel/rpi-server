@@ -36,6 +36,8 @@ services:
     restart: unless-stopped
     environment:
       - PNEUMA_DOMAIN=${TAILSCALE_DOMAIN}
+      - QUIC_GO_DISABLE_GSO=true
+      # - QUIC_GO_DISABLE_ECN=true
     network_mode: "host"
     # ports:
     #   - "80:80"
