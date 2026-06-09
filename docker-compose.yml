@@ -3,8 +3,8 @@ services:
     image: ghcr.io/johncmanuel/pneuma/server:latest
     container_name: pneuma-server
     restart: unless-stopped
-    ports:
-      - "8989:8989"
+    # ports:
+    #   - "8989:8989"
     volumes:
       # Persistent application data (database, cached artwork, uploads, etc.)
       - pneuma_data:/data
@@ -30,5 +30,25 @@ services:
       # Increase upload limit if needed (500 MB is default)
       # - PNEUMA_UPLOAD_MAX_SIZE_MB=500
 
+  caddy:
+    image: caddy:2.11.4-alpine
+    container_name: pneuma-caddy
+    restart: unless-stopped
+    environment:
+      - PNEUMA_DOMAIN=${TAILSCALE_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      # UDP port 443 needed for HTTP/3
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      # fetch certs from tailscale daemon
+      - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
+
 volumes:
   pneuma_data:
+  caddy_data:
+  caddy_config:

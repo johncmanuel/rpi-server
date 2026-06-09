@@ -1,0 +1,11 @@
+{$PNEUMA_DOMAIN} {
+    tls {
+        get_certificate tailscale
+    }
+
+    encode zstd gzip
+
+    # using the container-name since they're in same docker network
+    reverse_proxy pneuma-server:8989
+}
+
