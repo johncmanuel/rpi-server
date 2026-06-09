@@ -5,6 +5,7 @@
 
     encode zstd gzip
 
-    reverse_proxy 127.0.0.1:8989
+    reverse_proxy pneuma-server:8989
+    # reverse_proxy 127.0.0.1:8989
 }
 
