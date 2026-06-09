@@ -3,8 +3,8 @@ services:
     image: ghcr.io/johncmanuel/pneuma/server:latest
     container_name: pneuma-server
     restart: unless-stopped
-    # ports:
-    #   - "8989:8989"
+    ports:
+      - "8989:8989"
     volumes:
       # Persistent application data (database, cached artwork, uploads, etc.)
       - pneuma_data:/data
@@ -14,8 +14,8 @@ services:
       - ./music:/music:ro
 
     environment:
-      # Core configuration
       - PNEUMA_SERVER_HOST=0.0.0.0
+      # Core configuration
       - PNEUMA_DATA_DIR=/data
 
       # Point the music scanner to the mounted volume
@@ -36,11 +36,12 @@ services:
     restart: unless-stopped
     environment:
       - PNEUMA_DOMAIN=${TAILSCALE_DOMAIN}
-    ports:
-      - "80:80"
-      - "443:443"
-      # UDP port 443 needed for HTTP/3
-      - "443:443/udp"
+    network_mode: "host"
+    # ports:
+    #   - "80:80"
+    #   - "443:443"
+    #   # UDP port 443 needed for HTTP/3
+    #   - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
