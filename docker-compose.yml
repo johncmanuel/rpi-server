@@ -43,7 +43,7 @@ services:
       # UDP port 443 needed for HTTP/3
       - "443:443/udp"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./apps/pneuma/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
       # fetch certs from tailscale daemon
