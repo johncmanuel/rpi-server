@@ -11,7 +11,7 @@ services:
 
       # Mount your music directory (read-only recommended)
       # Replace `./music` with the actual path to your local music directory
-      - ./music:/music:ro
+      - ../../music:/music:ro
 
     environment:
       - PNEUMA_SERVER_HOST=0.0.0.0
@@ -43,7 +43,7 @@ services:
       # UDP port 443 needed for HTTP/3
       - "443:443/udp"
     volumes:
-      - ./apps/pneuma/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
       # fetch certs from tailscale daemon

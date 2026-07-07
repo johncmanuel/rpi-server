@@ -2,6 +2,8 @@
 
 ## Running the server 
 
+For each app to start, `cd` into the desired app under `apps/` 
+
 ### Tailscale (without Caddy)
 
 1. Run `sudo docker compose pull` for any updates
