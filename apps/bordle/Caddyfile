@@ -1,7 +1,4 @@
-bordle.{$TAILNET_NAME} {
-    tls {
-        get_certificate tailscale
-    }
+:80 {
     encode zstd gzip
 
     handle /api/* {
