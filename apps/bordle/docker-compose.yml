@@ -6,6 +6,8 @@ services:
     env_file:
       - .env
     environment:
+      - TAILNET_NAME
+    environment:
       - TS_AUTHKEY
       - TS_EXTRA_ARGS
       - TS_STATE_DIR=/var/lib/tailscale
@@ -27,6 +29,10 @@ services:
     network_mode: service:bordle-tailscale
     depends_on:
       - bordle-tailscale
+    env_file:
+      - .env
+    environment:
+      - TAILNET_NAME
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - bordle_caddy_data:/data

@@ -1,4 +1,4 @@
-pneuma {
+pneuma.{$TAILNET_NAME} {
 	tls {
 		get_certificate tailscale
 	}

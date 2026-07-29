@@ -57,6 +57,8 @@ services:
       - pneuma-tailscale
     env_file:
       - .env
+    environment:
+      - TAILNET_NAME
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

@@ -1,8 +1,4 @@
-{
-    local_certs
-}
-
-bordle {
+bordle.{$TAILNET_NAME} {
     tls {
         get_certificate tailscale
     }
