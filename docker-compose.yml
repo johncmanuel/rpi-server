@@ -3,3 +3,4 @@ name: rpi-server
 include:
   - path: ./apps/pneuma/docker-compose.yml
   - path: ./apps/bordle/docker-compose.yml
+  - path: ./apps/plucker/docker-compose.yml
