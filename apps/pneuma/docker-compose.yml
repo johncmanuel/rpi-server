@@ -1,10 +1,28 @@
 services:
+  pneuma-tailscale:
+    image: tailscale/tailscale:v1.20.1
+    container_name: pneuma-tailscale
+    hostname: pneuma
+    env_file:
+      # Using relative paths assuming docker-compose is run from apps/pneuma
+      - .env
+    environment:
+      - TS_AUTHKEY=${TS_OAUTH_SECRET}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_SOCKET=/var/run/tailscale/tailscaled.sock
+    volumes:
+      - pneuma_ts_state:/var/lib/tailscale
+      - pneuma_ts_sock:/var/run/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
+
   server:
     image: ghcr.io/johncmanuel/pneuma/server:latest
     container_name: pneuma-server
     restart: unless-stopped
-    # ports:
-    #   - "8989:8989"
     volumes:
       # Persistent application data (database, cached artwork, uploads, etc.)
       - pneuma_data:/data
@@ -34,25 +52,24 @@ services:
     image: caddy:2.11.4-alpine
     container_name: pneuma-caddy
     restart: unless-stopped
-    environment:
-      - PNEUMA_DOMAIN=${TAILSCALE_DOMAIN}
-    # network_mode: "host"
-    ports:
-      - "80:80"
-      - "443:443"
-      # UDP port 443 needed for HTTP/3
-      - "443:443/udp"
+    network_mode: service:pneuma-tailscale
+    depends_on:
+      - pneuma-tailscale
+    env_file:
+      - .env
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-      # fetch certs from tailscale daemon
-      - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
+      # fetch certs from tailscale daemon sidecar
+      - pneuma_ts_sock:/var/run/tailscale
 
 volumes:
   pneuma_data:
   caddy_data:
   caddy_config:
+  pneuma_ts_state:
+  pneuma_ts_sock:
 
 networks:
   default:

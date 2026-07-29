@@ -1,0 +1,18 @@
+{
+    local_certs
+}
+
+bordle {
+    tls {
+        get_certificate tailscale
+    }
+    encode zstd gzip
+
+    handle /api/* {
+        reverse_proxy bordle_server:8080
+    }
+
+    handle {
+        reverse_proxy bordle_client:8080
+    }
+}

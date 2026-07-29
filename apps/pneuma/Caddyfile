@@ -1,4 +1,4 @@
-{$PNEUMA_DOMAIN} {
+pneuma {
 	tls {
 		get_certificate tailscale
 	}

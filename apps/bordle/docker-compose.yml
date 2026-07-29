@@ -1,0 +1,82 @@
+services:
+  bordle-tailscale:
+    image: tailscale/tailscale:latest
+    container_name: bordle-tailscale
+    hostname: bordle
+    env_file:
+      - ./.env
+    environment:
+      - TS_AUTHKEY=${TS_OAUTH_SECRET}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_SOCKET=/var/run/tailscale/tailscaled.sock
+    volumes:
+      - bordle_ts_state:/var/lib/tailscale
+      - bordle_ts_sock:/var/run/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
+
+  bordle-caddy:
+    image: caddy:2.11.4-alpine
+    container_name: bordle-caddy
+    restart: unless-stopped
+    # share the Tailscale sidecar's network namespace
+    network_mode: service:bordle-tailscale
+    depends_on:
+      - bordle-tailscale
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - bordle_caddy_data:/data
+      - bordle_caddy_config:/config
+      - bordle_ts_sock:/var/run/tailscale
+
+  bordle_db:
+    image: postgres:16-alpine
+    container_name: bordle_db
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - bordle_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d bordle -U bordle"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  bordle_server:
+    image: ghcr.io/johncmanuel/bordle-server:latest
+    container_name: bordle_server
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+    depends_on:
+      bordle_db:
+        condition: service_healthy
+
+  bordle_client:
+    image: ghcr.io/johncmanuel/bordle-client:latest
+    container_name: bordle_client
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      # - VIRTUAL_HOST=bordle.${MAIN_DOMAIN}
+      # - LETSENCRYPT_HOST=bordle.${MAIN_DOMAIN}
+      # The client Dockerfile serves via Caddy on port 8080
+      # - VIRTUAL_PORT=8080
+      - VITE_DISCORD_CLIENT_ID=${VITE_DISCORD_CLIENT_ID}
+    depends_on:
+      - bordle_server
+
+volumes:
+  bordle_ts_state:
+  bordle_ts_sock:
+  bordle_caddy_data:
+  bordle_caddy_config:
+  bordle_db_data:
