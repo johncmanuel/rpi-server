@@ -4,3 +4,4 @@ include:
   - path: ./apps/pneuma/docker-compose.yml
   - path: ./apps/bordle/docker-compose.yml
   - path: ./apps/plucker/docker-compose.yml
+  - path: ./apps/codered/docker-compose.yml
