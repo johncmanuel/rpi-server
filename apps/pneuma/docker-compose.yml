@@ -1,6 +1,6 @@
 services:
   pneuma-tailscale:
-    image: tailscale/tailscale:v1.20.1
+    image: tailscale/tailscale:latest
     container_name: pneuma-tailscale
     hostname: pneuma
     env_file:
