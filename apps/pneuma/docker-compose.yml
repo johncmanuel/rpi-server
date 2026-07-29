@@ -4,10 +4,9 @@ services:
     container_name: pneuma-tailscale
     hostname: pneuma
     env_file:
-      # Using relative paths assuming docker-compose is run from apps/pneuma
+      - ../../.env
       - .env
     environment:
-      - TS_AUTHKEY=${TS_OAUTH_SECRET}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_SOCKET=/var/run/tailscale/tailscaled.sock
     volumes:

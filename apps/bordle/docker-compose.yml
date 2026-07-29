@@ -4,9 +4,9 @@ services:
     container_name: bordle-tailscale
     hostname: bordle
     env_file:
-      - ./.env
+      - ../../.env
+      - .env
     environment:
-      - TS_AUTHKEY=${TS_OAUTH_SECRET}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_SOCKET=/var/run/tailscale/tailscaled.sock
     volumes:
