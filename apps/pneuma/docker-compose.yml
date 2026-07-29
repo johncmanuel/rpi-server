@@ -4,9 +4,11 @@ services:
     container_name: pneuma-tailscale
     hostname: pneuma
     env_file:
-      - ../../.env
       - .env
     environment:
+      - TS_CLIENT_ID
+      - TS_CLIENT_SECRET
+      - TS_AUTHKEY
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_SOCKET=/var/run/tailscale/tailscaled.sock
     volumes:
