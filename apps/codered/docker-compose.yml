@@ -35,9 +35,6 @@ services:
     image: ghcr.io/johncmanuel/codered:latest
     restart: unless-stopped
     container_name: codered-server
-    network_mode: service:codered-tailscale
-    depends_on:
-      - codered-tailscale
 
 volumes:
   codered_ts_state:
