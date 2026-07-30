@@ -18,5 +18,10 @@
     header Access-Control-Allow-Origin "https://codered-snowy.vercel.app"
     header Access-Control-Allow-Private-Network "true"
 
-    reverse_proxy codered-server:2567
+    reverse_proxy 127.0.0.1:2567 {
+        header_down -Access-Control-Allow-Origin
+        header_down Access-Control-Allow-Origin "https://codered-snowy.vercel.app"
+        header_down -Access-Control-Allow-Private-Network
+        header_down Access-Control-Allow-Private-Network "true"
+    }
 }
