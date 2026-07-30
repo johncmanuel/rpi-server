@@ -21,20 +21,13 @@ services:
       - sys_module
     restart: unless-stopped
 
-  codered-caddy:
-    image: caddy:2.11.4-alpine
-    container_name: codered-caddy
-    restart: unless-stopped
-    network_mode: service:codered-tailscale
-    depends_on:
-      - codered-tailscale
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-
   codered-server:
     image: ghcr.io/johncmanuel/codered:latest
     restart: unless-stopped
     container_name: codered-server
+    network_mode: service:codered-tailscale
+    depends_on:
+      - codered-tailscale
 
 volumes:
   codered_ts_state:
