@@ -67,6 +67,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=ecjc-db;Database=ecjc;Username=ecjc;Password=${POSTGRES_PASSWORD:-ecjc}
       - Auth__Secret=${BETTER_AUTH_SECRET}
       - CENTRIFUGO_BASE_URL=http://ecjc-centrifugo:8000
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-https://ecjc.${TAILNET_NAME}}
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
     depends_on:
@@ -85,6 +86,7 @@ services:
       - NODE_ENV=production
       - API_URL=http://ecjc-server:8080
       - DATABASE_URL=postgres://ecjc:${POSTGRES_PASSWORD:-ecjc}@ecjc-db:5432/ecjc
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-https://ecjc.${TAILNET_NAME}}
     depends_on:
       - ecjc-server
 
