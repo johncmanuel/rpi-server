@@ -1,0 +1,94 @@
+services:
+  ecjc-tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ecjc-tailscale
+    hostname: ecjc
+    env_file:
+      - .env
+    environment:
+      - TS_AUTHKEY
+      - TS_EXTRA_ARGS
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_SOCKET=/var/run/tailscale/tailscaled.sock
+      - TS_SERVE_CONFIG=/config/serve.json
+    volumes:
+      - ecjc_ts_state:/var/lib/tailscale
+      - ecjc_ts_sock:/var/run/tailscale
+      - /dev/net/tun:/dev/net/tun
+      - ./serve.json:/config/serve.json:ro
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
+
+  ecjc-db:
+    image: postgres:15-alpine
+    container_name: ecjc-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ecjc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecjc}
+      POSTGRES_DB: ecjc
+    volumes:
+      - ecjc_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecjc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ecjc-centrifugo:
+    image: centrifugo/centrifugo:v5
+    container_name: ecjc-centrifugo
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CENTRIFUGO_TOKEN_HMAC_SECRET_KEY: ${BETTER_AUTH_SECRET}
+      CENTRIFUGO_ADMIN_PASSWORD: ${CENTRIFUGO_ADMIN_PASSWORD:-admin}
+      CENTRIFUGO_ADMIN_SECRET: ${CENTRIFUGO_ADMIN_SECRET:-admin-secret}
+      CENTRIFUGO_API_KEY: ${CENTRIFUGO_HTTP_API_KEY:-centrifugo-api-key}
+    command: centrifugo --health
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ecjc-server:
+    image: ghcr.io/johncmanuel/ecjc-server:latest
+    container_name: ecjc-server
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=ecjc-db;Database=ecjc;Username=ecjc;Password=${POSTGRES_PASSWORD:-ecjc}
+      - Auth__Secret=${BETTER_AUTH_SECRET}
+      - CENTRIFUGO_BASE_URL=http://ecjc-centrifugo:8000
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+    depends_on:
+      ecjc-db:
+        condition: service_healthy
+      ecjc-centrifugo:
+        condition: service_healthy
+
+  ecjc-client:
+    image: ghcr.io/johncmanuel/ecjc-client:latest
+    container_name: ecjc-client
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://ecjc-server:8080
+      - DATABASE_URL=postgres://ecjc:${POSTGRES_PASSWORD:-ecjc}@ecjc-db:5432/ecjc
+    depends_on:
+      - ecjc-server
+
+volumes:
+  ecjc_ts_state:
+  ecjc_ts_sock:
+  ecjc_db_data:

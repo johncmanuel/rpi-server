@@ -5,3 +5,4 @@ include:
   - path: ./apps/bordle/docker-compose.yml
   - path: ./apps/plucker/docker-compose.yml
   - path: ./apps/codered/docker-compose.yml
+  - path: ./apps/ecjc/docker-compose.yml
